@@ -1,5 +1,6 @@
 #include "Plugin.pch"
 
+
 static callbackFunc asyncCallback;
 
 const char* DialogOpenFilePanel(const char* title,
@@ -186,7 +187,17 @@ void DialogSaveFilePanelAsync(const char* title,
             if ([panel respondsToSelector:@selector(setAccessoryViewDisclosed:)]) {
                 [panel setAccessoryViewDisclosed:YES];
             }
-            [panel setAllowedFileTypes:(NSArray*)[extensions objectAtIndex:0]];
+            NSArray *fileExtensions = [extensions objectAtIndex:0];
+            NSMutableArray<UTType *> *allowedTypes = [NSMutableArray array];
+            
+            for (NSString *extension in fileExtensions) {
+                UTType *type = [UTType typeWithFilenameExtension:extension];
+                if (type) {
+                    [allowedTypes addObject:type];
+                }
+            }
+            
+            [panel setAllowedContentTypes:allowedTypes];
         }
 
         if ([title length] != 0) {
@@ -280,7 +291,17 @@ void DialogSaveFilePanelAsync(const char* title,
             [accessoryView addSubview:popupButton];
 
             [panel setAccessoryView:accessoryView];
-            [panel setAllowedFileTypes:(NSArray*)[extensions objectAtIndex:0]];
+            NSArray *fileExtensions = [extensions objectAtIndex:0];
+            NSMutableArray<UTType *> *allowedTypes = [NSMutableArray array];
+            
+            for (NSString *extension in fileExtensions) {
+                UTType *type = [UTType typeWithFilenameExtension:extension];
+                if (type) {
+                    [allowedTypes addObject:type];
+                }
+            }
+            
+            [panel setAllowedContentTypes:allowedTypes];
         }
 
         if ([title length] != 0) {
@@ -350,10 +371,20 @@ void DialogSaveFilePanelAsync(const char* title,
 
     NSString* firstExtension = (NSString*)[[_extensions objectAtIndex:selectedItemIndex] objectAtIndex:0];
     if ([firstExtension isEqualToString:@""] || [firstExtension isEqualToString:@"*"]) {
-        [((NSOpenPanel*)_panel) setAllowedFileTypes:nil];
+        [((NSOpenPanel*)_panel) setAllowedContentTypes:@[]];
     }
     else {
-        [((NSOpenPanel*)_panel) setAllowedFileTypes:[_extensions objectAtIndex:selectedItemIndex]];
+        NSArray *selectedExtensions = [_extensions objectAtIndex:selectedItemIndex];
+        NSMutableArray<UTType *> *allowedTypes = [NSMutableArray array];
+        
+        for (NSString *extension in selectedExtensions) {
+            UTType *type = [UTType typeWithFilenameExtension:extension];
+            if (type) {
+                [allowedTypes addObject:type];
+            }
+        }
+        
+        [((NSOpenPanel*)_panel) setAllowedContentTypes:allowedTypes];
     }
     [((NSSavePanel*)_panel) update];
 }
@@ -369,11 +400,17 @@ void DialogSaveFilePanelAsync(const char* title,
 
     if ([ext isEqualToString:@""] || [ext isEqualToString:@"*"]) {
         nameFieldStringWithExt = trimmedNameFieldString;
-        [((NSSavePanel*)_panel) setAllowedFileTypes:nil];
+        [((NSOpenPanel*)_panel) setAllowedContentTypes:@[]];
     }
     else {
         nameFieldStringWithExt = [NSString stringWithFormat:@"%@.%@", trimmedNameFieldString, ext];
-        [((NSSavePanel*)_panel) setAllowedFileTypes:@[ext]];
+
+        // Convert the file extension to a UTType object
+        UTType *type = [UTType typeWithFilenameExtension:ext];
+
+        // Set the allowed content types to the NSOpenPanel
+        [((NSOpenPanel*)_panel) setAllowedContentTypes:@[type]];
+
     }
     
     [((NSSavePanel*)_panel) setNameFieldStringValue:nameFieldStringWithExt];

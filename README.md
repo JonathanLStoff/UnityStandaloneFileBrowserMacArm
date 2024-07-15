@@ -1,4 +1,6 @@
-# Unity Standalone File Browser
+# Unity Standalone File Browser with Mac ARM64 Support
+
+## Changes the original project to add support for M1, M2, M3, etc. Macs
 
 A simple wrapper for native file dialogs on Windows/Mac/Linux.
 
@@ -11,6 +13,11 @@ A simple wrapper for native file dialogs on Windows/Mac/Linux.
 - Basic WebGL support.
 
 [Download Package](https://github.com/gkngkc/UnityStandaloneFileBrowser/releases/download/1.2/StandaloneFileBrowser.unitypackage)
+
+## Instructions
+
+- Install the package.
+- Download the [release](https://www.example.com) package and replace the files in your project.
 
 Example usage:
 
